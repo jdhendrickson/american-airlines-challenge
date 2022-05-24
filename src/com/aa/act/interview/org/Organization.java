@@ -23,12 +23,12 @@ public abstract class Organization {
 	 * @return the newly filled position or empty if no position has that title
 	 */
 	public Optional<Position> hire(Name person, String title) {
-		Position position = getPosition(root, title);
-		if (position != null) {
+		Optional<Position> position = getPosition(root, title);
+		if (position.isPresent()) {
 			Employee employee = new Employee(getNewId(), person);
-			position.setEmployee(Optional.of(employee));
+			position.ifPresent(pos -> pos.setEmployee(Optional.of(employee)));
 		}
-		return Optional.ofNullable(position);
+		return position;
 	}
 
 	/**
@@ -36,13 +36,13 @@ public abstract class Organization {
 	 * @param title The name of the title of the position
 	 * @return      The position with the title, or empty if there is no position with that title
 	 */
-	public Position getPosition(Position pos, String title) {
-		Position output = null;
+	public Optional<Position> getPosition(Position pos, String title) {
+		Optional<Position> output = Optional.empty();
 		if (pos.getTitle().toLowerCase().equals(title.toLowerCase())) {
-			output = pos;
+			output = Optional.of(pos);
 		} else {
 			for (Position p : pos.getDirectReports()) {
-				if (output == null) {
+				if (output.isEmpty()) {
 					output = getPosition(p, title);
 				}
 			}
